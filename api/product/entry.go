@@ -2,12 +2,12 @@ package product
 
 import "github.com/gin-gonic/gin"
 
-func AddProductRouter(engine *gin.Engine, middlewares ...gin.HandlerFunc) {
-	engine.Group("product")
+func AddProductRouter(g *gin.RouterGroup, middlewares ...gin.HandlerFunc) {
+	ng := g.Group("product")
 	if middlewares != nil {
 		for _, middleware := range middlewares {
-			engine.Use(middleware)
+			ng.Use(middleware)
 		}
 	}
-	engine.GET("/", indexHandler)
+	ng.GET("", indexHandler)
 }

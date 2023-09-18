@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
+	"mall/api/product"
 	"net/http"
 )
 
@@ -12,4 +13,9 @@ func SetupRouter(r *gin.Engine) {
 		c.String(http.StatusOK, "pong")
 	})
 
+	g := r.Group("api/v1")
+	product.AddProductRouter(g)
+
+	g2 := r.Group("api/v2")
+	product.AddProductRouter(g2)
 }
