@@ -7,3 +7,6 @@ db:
   user: root
   password: root
   database: mall
+
+jwt:
+  secret: secret

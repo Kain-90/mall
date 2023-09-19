@@ -3,6 +3,7 @@ package global
 type Config struct {
 	App App
 	DB  DB
+	JWT JWT
 }
 
 type App struct {
@@ -15,4 +16,8 @@ type DB struct {
 	User     string
 	Password string
 	Database string
+}
+
+type JWT struct {
+	Secret string
 }
