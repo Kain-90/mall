@@ -7,7 +7,7 @@ import (
 )
 
 func TestJwtAuth(t *testing.T) {
-	tokenStr := sign(Claims{
+	tokenStr := Sign(UserClaims{
 		UserId:   1,
 		UserName: "admin",
 		RegisteredClaims: jwt.RegisteredClaims{

@@ -8,30 +8,39 @@ import (
 	"net/http"
 )
 
-type Claims struct {
+type UserClaims struct {
 	UserId   int    `json:"user_id"`
 	UserName string `json:"user_name"`
 	jwt.RegisteredClaims
 }
 
-// JwtAuth jwt auth middleware
-func JwtAuth(c *gin.Context) {
-	tokenStr := c.GetHeader("x-client-token")
-	if tokenStr != "" {
-		claims := parse(tokenStr)
-		if claims != nil {
-			c.Set("user", parse(tokenStr))
-			c.Next()
+// RequiredAuthMiddleware jwt auth middleware
+func RequiredAuthMiddleware(isAbort bool) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		tokenStr := c.GetHeader("x-client-token")
+		var userClaims *UserClaims = nil
+		if tokenStr != "" {
+			claims := parse(tokenStr)
+			if claims != nil {
+				userClaims = parse(tokenStr)
+			}
 		}
+		global.GVA_LOG.Info("set user to context")
+		c.Set("user", userClaims)
+		if userClaims == nil {
+			if isAbort {
+				c.AbortWithStatusJSON(http.StatusOK, api.Response{
+					Code: api.Unauthorized,
+					Msg:  "未登录",
+				})
+				return
+			}
+		}
+		c.Next()
 	}
-	c.JSON(http.StatusOK, api.Response{
-		Code: api.Unauthorized,
-		Msg:  "unauthorized",
-	})
-	c.Abort()
 }
 
-func sign(claims Claims) string {
+func Sign(claims UserClaims) string {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signedString, err := token.SignedString([]byte(global.GVA_CONFIG.JWT.Secret))
 	if err != nil {
@@ -40,13 +49,13 @@ func sign(claims Claims) string {
 	return signedString
 }
 
-func parse(tokenStr string) *Claims {
-	token, err := jwt.ParseWithClaims(tokenStr, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+func parse(tokenStr string) *UserClaims {
+	token, err := jwt.ParseWithClaims(tokenStr, &UserClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(global.GVA_CONFIG.JWT.Secret), nil
 	})
 	if err != nil {
 		return nil
 	}
-	claims := token.Claims.(*Claims)
+	claims := token.Claims.(*UserClaims)
 	return claims
 }
