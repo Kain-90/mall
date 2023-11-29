@@ -1,5 +1,5 @@
 # mall
-> 以学习golang、gin、gorm、go-zero等为目的
+> 以学习golang、gin、gorm、go-zero等为目的。
 
 ## 项目结构
 ```
